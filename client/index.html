@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Salesforce Validation Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    <main class="shell">
+
+        <section class="page-header">
+            <div>
+                <p class="eyebrow">Salesforce Admin Tool</p>
+                <h1>Validation Manager</h1>
+                <p class="subtitle">Review validation rules and change their active status from one workspace.</p>
+            </div>
+
+            <div id="connectionBadge" class="status-badge status-neutral">
+                Not connected
+            </div>
+        </section>
+
+        <section class="toolbar">
+            <div class="actions">
+                <button id="loginBtn" class="btn btn-primary">
+                    Connect Salesforce
+                </button>
+
+                <button id="fetchBtn" class="btn btn-secondary">
+                    Refresh Rules
+                </button>
+            </div>
+
+            <div id="message" class="message" role="status"></div>
+        </section>
+
+        <section class="table-panel">
+            <div class="table-header">
+                <div>
+                    <h2>Validation Rules</h2>
+                    <p id="ruleCount">No rules loaded</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Rule Name</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="rulesBody">
+                        <tr>
+                            <td colspan="3" class="empty-state">
+                                Connect to Salesforce and refresh rules to begin.
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
