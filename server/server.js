@@ -18,6 +18,7 @@ const oauth2 = new jsforce.OAuth2({
 });
 
 let salesforceConnection = null;
+const port = process.env.PORT || 5000;
 
 app.get('/login', (req, res) => {
 
@@ -136,6 +137,6 @@ app.post('/toggle/:id', async (req, res) => {
         });
     }
 });
-app.listen(5000, () => {
-    console.log('Server started on port 5000');
+app.listen(port, () => {
+    console.log(`Server started on port ${port}`);
 });

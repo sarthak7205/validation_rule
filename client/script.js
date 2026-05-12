@@ -3,7 +3,7 @@ document
 .addEventListener('click', () => {
 
     window.location.href =
-        'http://localhost:5000/login';
+        '/login';
 });
 
 const message = document.getElementById('message');
@@ -35,7 +35,7 @@ async function loadRules() {
     try {
 
         const response = await fetch(
-            'http://localhost:5000/rules'
+            '/rules'
         );
 
         const data = await response.json();
@@ -109,7 +109,7 @@ async function toggleRule(id, active) {
 
         const response = await fetch(
 
-            `http://localhost:5000/toggle/${id}`,
+            `/toggle/${id}`,
 
             {
                 method: 'POST',
