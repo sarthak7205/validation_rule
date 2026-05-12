@@ -10,6 +10,10 @@ const message = document.getElementById('message');
 const ruleCount = document.getElementById('ruleCount');
 const rulesBody = document.getElementById('rulesBody');
 const connectionBadge = document.getElementById('connectionBadge');
+const loginBtn = document.getElementById('loginBtn');
+const fetchBtn = document.getElementById('fetchBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+let authRequestVersion = 0;
 
 const params = new URLSearchParams(window.location.search);
 
@@ -27,7 +31,13 @@ document
 .getElementById('fetchBtn')
 .addEventListener('click', loadRules);
 
+logoutBtn.addEventListener('click', logout);
+
+checkStatus();
+
 async function loadRules() {
+
+    const requestVersion = authRequestVersion;
 
     setLoading(true);
     showMessage('Loading validation rules...', 'info');
@@ -35,10 +45,18 @@ async function loadRules() {
     try {
 
         const response = await fetch(
-            '/rules'
+            '/rules',
+            {
+                credentials: 'same-origin',
+                cache: 'no-store'
+            }
         );
 
         const data = await response.json();
+
+        if (requestVersion !== authRequestVersion) {
+            return;
+        }
 
         if (!response.ok) {
             setConnected(false);
@@ -51,7 +69,7 @@ async function loadRules() {
         showMessage('Validation rules loaded successfully.', 'success');
 
     } catch (err) {
-        showMessage('Could not reach the server. Make sure Node is running on port 5000.', 'error');
+        showMessage('Could not reach the server. Please try again in a moment.', 'error');
     } finally {
         setLoading(false);
     }
@@ -113,6 +131,7 @@ async function toggleRule(id, active) {
 
             {
                 method: 'POST',
+                credentials: 'same-origin',
 
                 headers: {
                     'Content-Type': 'application/json'
@@ -137,6 +156,66 @@ async function toggleRule(id, active) {
     }
 }
 
+async function checkStatus() {
+
+    try {
+
+        const response = await fetch('/status', {
+            credentials: 'same-origin',
+            cache: 'no-store'
+        });
+        const data = await response.json();
+
+        setConnected(data.connected);
+
+        if (!data.connected && !params.get('connected')) {
+            clearRules();
+        }
+
+    } catch (err) {
+        setConnected(false);
+    }
+}
+
+async function logout() {
+
+    try {
+
+        authRequestVersion += 1;
+
+        const response = await fetch('/logout', {
+            method: 'POST',
+            credentials: 'same-origin',
+            cache: 'no-store'
+        });
+        const data = await response.json();
+
+        window.history.replaceState({}, '', '/');
+        setConnected(false);
+        clearRules();
+        showMessage(data.message || 'Logged out successfully', response.ok ? 'success' : 'error');
+
+        if (response.ok && data.logoutUrl) {
+            window.location.href = data.logoutUrl;
+        }
+
+    } catch (err) {
+        showMessage('Could not logout. Please try again.', 'error');
+    }
+}
+
+function clearRules() {
+
+    ruleCount.textContent = 'No rules loaded';
+    rulesBody.innerHTML = `
+        <tr>
+            <td colspan="3" class="empty-state">
+                Connect to Salesforce and refresh rules to begin.
+            </td>
+        </tr>
+    `;
+}
+
 function showMessage(text, type) {
 
     message.textContent = text;
@@ -147,11 +226,13 @@ function setConnected(isConnected) {
 
     connectionBadge.textContent = isConnected ? 'Connected' : 'Not connected';
     connectionBadge.className = `status-badge ${isConnected ? 'status-connected' : 'status-neutral'}`;
+    loginBtn.hidden = isConnected;
+    logoutBtn.hidden = !isConnected;
 }
 
 function setLoading(isLoading) {
 
-    document.getElementById('fetchBtn').disabled = isLoading;
+    fetchBtn.disabled = isLoading;
 }
 
 function escapeHtml(value) {
